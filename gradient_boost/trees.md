@@ -136,3 +136,87 @@ Think about this though: boosting doesn't actually need to use trees. The princi
 Any shitty function will do, tree classifiers are just a good candidate cuz they're cheap.
 
 I don't know if anyone actually uses this fact, but it's good to remember.
+
+## Loss Functions
+
+The choice of loss function is one of the major decisions when designing a GBM. Below is a breakdown of some of the more commonly used ones.
+
+### For Continuous (i.e. unbounded) Targets 
+
+#### L2: 0.5 * (y - x)^2
+
+This is the classic-ass loss function, the loss between predicted data point `x` and ground truth data point `y` is `y - x` squared, times `0.5`, or
+
+    0.5 * (y - x)^2
+
+The total loss is the sum of the L2 loss for each prediction vs ground-truth data point pair. If it was just 
+
+    0.5 * (y - x)
+
+Then the loss for some pairs would be positive and others negative. Firstly this is bad because you could sometimes get a negative loss even if our predictions were waaaaay off (i.e. always predicted lower values than ground truth), and a negative loss is very conceptually confusing. Also all the maths is designed with a positive loss in mind, so you'd have to jiggle the math around. 
+
+But ok, let's assume the loss is just the absoloute value of the sum of all point-wise losses. Now you have a guaranteed non-negataive loss. So it solves that problem at least.
+
+There's another problem though. Again, some of the element-wise losses will be positive and others negative. This means some will cancel each other out when summed together. This would be probably be bad because, consider the following two vectors of element-wise losses:
+
+    a: [-0.5, 0.3, -0.4, 0.7]
+    b: [0.0, 0.2, 0.0, -0.1]
+
+Clearly whatever function produced `b` is much better since it's predictions are closer to the ground-truth values (in two instances they are actually the exact same values). But, when summed, both vectors produce the same loss: `1.0`. As a consequence, your algorithm will consider both functions equally good, and might well select the function behind `a` just through RNG.
+
+So, for sure, we need to get the absoloute value of each element-wise loss before summing them together unless we have a super good reason. But then you might ask: what's wrong with:
+
+    | 0.5 * (y - x) |
+
+The answer is probably not much. L2 penalizes bad predictions exponentially more as their badness increases, and this exponential punishment has, empirically, proven useful, apparently. It also penalizes close predictions very little. Basically it makes the algorithm focus on it's worst elements.
+
+Ok, so why the `0.5 *`? Why not just
+
+    (y - x)^2
+
+My suspicion is that while we want to penalize very bad predictions a lot more, by squaring the difference between prediction and ground truth, we're also inevitably punishing averagely bad predictions a bit more than we otherwise would. Presumably the halving is an attempt to bring the punishment of averagely bad values back down closer to what they would have been without the squaring. And perhaps also to prevent the exponentiation from spiraling too far out of control too fast. 
+
+#### L1: | y - x |
+
+Congratulations, we've already covered it.
+
+It seems like it's less "sharp", i.e. with the same data it will give a function that is closer to a linear function than `L2` would have. This might help us avoid over-fitting, since over-fitting is when we draw a line that matches the data we have super exactly, but stops matching the underlying data tendencies.
+
+![](../images/losses.png)
+
+#### Huber loss
+
+This is a weird one. The function definition involves an if statement and a hyperparameter `s`.
+
+    if | y - x | <= s:
+        return L2(x, y)
+    else:
+        return s(|y - x| - s/2)
+
+Basically, it says L2 loss if the absolute loss is greater than `s`, and otherwise use this weird loss. The higher the magnitude of x, the closer we get to straight `L2`. If you set it at like, infinity, you'd just have L2. The intuition here is to set some value after which the exponential punishment stops going nuts. Like, if you're expecting some huge mis-predictions and don't want huge gradient updates, you might use Huber to stop penalties growing exponentially past a certain point.
+
+
+#### Quantile loss
+
+Another conditional boi. It also has a hyperparamater `a`. Note the lack of pipes in the original if statement.
+
+    if y - x <= 0:
+        return (1 - a)|y - x|
+    else:
+        return a|y - x|
+
+As we increase `a`, predictions that are higher than ground truth (resulting in a less than 0 `y - x`) get penalized less, while predictions lower than ground truth get penalized more. If `a` is 1, predictions that are higher than ground truth don't get penalized at all. 
+
+### Categorical Loss Functions
+
+more on this later
+
+
+## Models (a.k.a base learners)
+
+The other big decision you have to make when using GBM is choosing a base "weak" learner (i.e. the thing you use to fit the data and then aggregate together to create the actual function). So far we've only talked about decision trees.
+
+If you want to get fancy you can even use a bunch of different base learners taped together into a kind of complex, and possibly not-that-weak model.
+
+For now though we'll just list some commonly used base learners.
+
