@@ -127,3 +127,12 @@ I imagine this means that model gets rewarded as it gets closer to predicting co
 Weirdly very stumpy trees can give the best performance sometimes. Trees with a single split, if there's enough of them, have been known to perform the best on some problems. 
 
 Not all problems though.
+
+
+### Shit gets cray
+
+Think about this though: boosting doesn't actually need to use trees. The principle is: (1) create a shitty function approximating what you want from `x` (2) find the (exact) ways and extent to which it is shitty, let's call this `y` (3) create a similarly shitty function approximating `y` from `x` (4) add this new function to the the original shitty function to get a new, slightly less shitty function. Repeat.
+
+Any shitty function will do, tree classifiers are just a good candidate cuz they're cheap.
+
+I don't know if anyone actually uses this fact, but it's good to remember.
