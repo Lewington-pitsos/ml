@@ -36,6 +36,36 @@ Essentially yes. But there are certain transformations you can do to the target 
 
 Ok, so in general, applying multiplications to the target won't result in any loss of predictive power, so if scaling the target in some way helps you, you should do it. Just remember to fucking UN-Scale any predictions (i.e. apply the reverse of whatever scaling operation you used) at the very very end of the process.
 
+### What kind of transformations can you apply?
+
+I'm not maths so I don't know. Appropriate transformations *will* have the following properties though:
+
+- order preserving: the order of the target values must remain as it was before the transform was applied.
+
 ### Conclusion
 
 So, finally: if you have a target distribution that *isn't* normal, to avoid biased models, scale the distribution into a normal distribution, do *all* your training, and then reverse the scaling for any predictions you generate.
+
+## Ensembles
+
+Empirically, averaging the results of a bunch of models (or combining their predictions in some other way) often tends to produce (slightly) better results than any one of those models. The benefit seems to be between 0.1 and 1% accuracy.
+
+To explain why let's start with one specific combination method: voting. A voting ensemble of models picks a single prediction from one of the models based on how common that prediction is (i.e. how many models came up with that *exact* prediction). Naturally voting is only possible where the model output is categorical. 
+
+There are a few a priori reasons why this might work. 
+
+### If 2 decent-ish models agree, their conclusion is more likely than either one alone. 
+
+Firstly, consider a situation where we have 3 models which need to predict one of 5 classes. All models are actually completely random but happen to be correct 25% of the time. If we create an ensemble from these which predicts any class picked by a majority of its models, and if there is no majority just picks randomly form them, the ensemble will have > 25% accuracy.
+
+In the case where there is no majority, the accuracy is still 25%, since the chance of a random model prediction being wrong is still 75%. However, the chance of two models predicting wrong is 0.75 * 0.75, so ~44% chance of being correct. So in the (rare) cases where two models happen to predict together the ensemble is more likely to be correct than any of its components. 
+
+Similar math still applies when the models aren't equal. If the first model `a` is right 28%, the second `b` 25% and the third `c` 23% (and all 3 are still actually random) you might think we should just drop `c` for better performance. However, in the case when `b` and `c` disagree with `a`, the probability of `a` being correct is still only 28%, while the probability of the other two being correct is ~42%, so having `c` is still of use. Where models are even more imbalanced, you can just introduce weightings. Say you have 5 models, all of which are correct 25% of the time except `a`, which is correct 60% of the time, you can give `a` 3 votes and all the rest 1, so that `a` will only be overturned where all the others are in concordance (in which case they have a ~69% of being correct).z
+
+Generally, you get the best performance improvements with voting if the models you are using are less correlated. The less your models agree, the more different the ensemble's predictions will be from any one of its component models. The more the ensemble's prediction's differ, the greater room for improvement (and deterioration, but deterioration is much less likely).
+
+### Averaging
+
+When the model predicts a continuous value, basically ensembles will always predict a weighted average of their component models. This has a bunch of advantages.
+
+One thing this helps with is over-fitting, since multiple models are unlikely to overfit in the same ways.
