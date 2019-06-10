@@ -149,13 +149,21 @@ This is the classic-ass loss function, the loss between predicted data point `x`
 
     0.5 * (y - x)^2
 
-The total loss is the sum of the L2 loss for each prediction vs ground-truth data point pair. If it was just 
+The total loss is the sum of the L2 loss for each prediction vs ground-truth data point pair. 
+
+##### Explained
+
+If it was just 
 
     0.5 * (y - x)
 
 Then the loss for some pairs would be positive and others negative. Firstly this is bad because you could sometimes get a negative loss even if our predictions were waaaaay off (i.e. always predicted lower values than ground truth), and a negative loss is very conceptually confusing. Also all the maths is designed with a positive loss in mind, so you'd have to jiggle the math around. 
 
-But ok, let's assume the loss is just the absoloute value of the sum of all point-wise losses. Now you have a guaranteed non-negataive loss. So it solves that problem at least.
+But ok, let's assume the loss is just the absoloute value of the sum of all point-wise losses. 
+
+    |sum(y - x)|
+
+Now you have a guaranteed non-negataive loss. So it solves that problem at least.
 
 There's another problem though. Again, some of the element-wise losses will be positive and others negative. This means some will cancel each other out when summed together. This would be probably be bad because, consider the following two vectors of element-wise losses:
 
@@ -198,7 +206,7 @@ Basically, it says L2 loss if the absolute loss is greater than `s`, and otherwi
 
 #### Quantile loss
 
-Another conditional boi. It also has a hyperparamater `a`. Note the lack of pipes in the original if statement.
+Another conditional boi. It also has a hyperparameter `a`. Note the lack of pipes in the original if statement.
 
     if y - x <= 0:
         return (1 - a)|y - x|
@@ -220,3 +228,18 @@ If you want to get fancy you can even use a bunch of different base learners tap
 
 For now though we'll just list some commonly used base learners.
 
+## Regularization
+
+### Subsampling
+
+You only give a subset of the whole dataset to each learning iteration. As well as regularizing, this method increases computational efficiency, since you're processing less data in each step.
+
+Subsampling is often bad when you have very little data though, since each learner will have a hard time fitting itself to the underlying data if the dataset it is given is too small to be representative.
+
+Often there ends up being a trade off between bag size and number of learners (`n_estimators`) and bag size. Lots of learners with a low subsample size will generally approximate fewer learners with a larger subsample size.
+
+### Early stopping
+
+Almost no matter how careful are, over-fitting will occur at some point. Often GBM is done with a set number of "boosts" or learning increments, and sometimes this number is too high and over-fitting has already started by the time training finishes.
+
+Early stopping is the idea that as soon as over-fitting is detected, a GBM should automatically stop adding boosts.
