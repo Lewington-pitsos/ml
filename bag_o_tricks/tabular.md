@@ -1,7 +1,5 @@
 # Confirmed
 
-- Replace null values with the existing *average* or *median* for that column. That way these values aren't allowed to fuck with the statistics of the column *and* they probably also better approximate the actual value that should be there.
-
 - K-fold cross validation
 
 - drop the FUCKing id column (~1%)
@@ -10,15 +8,17 @@
 
 - *fine tune* even more once you get close to desired parameters (~0.5%)
 
-- a dataset containing many dubious features will perform better than a small subset of that dataset containing only the most correlated features. Dubious data appears to be better than none at all. Hence high-quantity feature engineering is maybe good.
+- a dataset containing many so/so features will perform better than a small subset of that dataset containing only the most correlated features. Hence high-quantity feature engineering is maybe good.
 
 - target transformation, normalize the target variable, (~0.4%)
 
-- when imputing data, calculate mean, mode, etc from the combined train/test dataset. These values will be more accurate period.
+- if numerical features are skewed, try un-skewing them (box cox transform with lambda 0.15 is good), most helpful to linear classifiers (but oddly still helps tree classifiers).
 
-- if numerical features are skewed, try un-skewing them (box cox transform with lambda 0.15 is good), most helpful to linear classifiers.
+- when imputing data, calculate things like mean, mode, etc from the **combined** train/test dataset. These values will be more accurate period.
 
 - impute data using k-nearest neighbor (~0.01%) 
+
+- removing *some* useless columns can improve performance
 
 - kill outliers
 
@@ -26,15 +26,15 @@
 
 # To Try:
 
-- impute using fuzzy knn
+- find variables that are highly correlated with each other (something like 0.8+) and drop the one that is less correlated with the target
 
-- combine the predictions of multiple models for best results.
+- impute using fuzzy knn
 
 - Bayesiean Principle Component Analysis
 
 # Dubious
 
-- auto-generating lots of dubious features is helpful
+- make the bad_val indicator variable columns according to jeremy
 
-- intuitive feature engineering is sometimes required
+- auto-generating lots of dubious features is helpful??
 
