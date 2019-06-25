@@ -26,6 +26,8 @@
 
 # To Try:
 
+- if the task specifies values to fall within a certain range, make sure that the values you are using for validation also fall within that range. OR add a `y_range` to your loss function.
+
 - find variables that are highly correlated with each other (something like 0.8+) and drop the one that is less correlated with the target
 
 - impute using fuzzy knn
