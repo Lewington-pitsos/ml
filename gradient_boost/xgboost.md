@@ -50,4 +50,4 @@ But in fact what happens is the user sets a `max_depth`, and xgboost makes a tre
 
  `min_child_weight`: minimum number of samples that must be in a leaf before we consider splitting it
 
- `max_delta_step`: maximum update amount per tree. 
+ `max_delta_step`: maximum update amount per tree. In GMB we create corrective trees which predict how badly the former tree was, and then generate a new tree which is just the difference of predictive and former trees. `eta` or `learning_rate` adds some regularization by reducing each update (more updates cancel noise hopefully). But sometimes we end up with huge  
