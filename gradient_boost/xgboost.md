@@ -50,4 +50,34 @@ But in fact what happens is the user sets a `max_depth`, and xgboost makes a tre
 
  `min_child_weight`: minimum number of samples that must be in a leaf before we consider splitting it
 
- `max_delta_step`: maximum update amount per tree. In GMB we create corrective trees which predict how badly the former tree was, and then generate a new tree which is just the difference of predictive and former trees. `eta` or `learning_rate` adds some regularization by reducing each update (more updates cancel noise hopefully). But sometimes we end up with huge  
+ `max_delta_step`: maximum update amount per tree. In GMB we create corrective trees which predict how badly the former tree was, and then generate a new tree which is just the difference of predictive and former trees. `eta` or `learning_rate` adds some regularization by reducing each update (more updates cancel noise hopefully). But sometimes we end up with huge steps anyway (can't think of any examples) and multiplying them by a constant still leaves us with too large of a step. To prevent any step from being too large, we can put an **absolute** cap on the size of a step. This cap is called `max_delta_step` in xgboost. 
+
+
+ ## Tuning
+
+ Things to look out for:
+ - over-fitting
+ - imbalanced classes
+
+ Trust your own CV more than the public LB. Usually you can cross-validate with more data than public LB gives you.
+
+ ### To force simpler models:
+
+ max_depth, min_child_weight, gamma
+
+ ### To handle noisy data
+
+ subsample, colsample_by_tree
+
+ ## Imbalanced classes
+
+ If you only care about prediction rank:
+ - `scale_pos_weight` to normalize input values around 0
+ - `auc` evaluation metric
+
+ If you care about the prediction value:
+ - Set parameter `max_delta_step` to something (maybe 1) 
+
+ ## Custom loss function
+
+ ![](../images/custom_loss.png)
