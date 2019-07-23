@@ -69,8 +69,3 @@ Generally, you get the best performance improvements with voting if the models y
 When the model predicts a continuous value, basically ensembles will always predict a weighted average of their component models. This has a bunch of advantages.
 
 One thing this helps with is over-fitting, since multiple models are unlikely to overfit in the same ways.
-
-
-## Sparsity
-
-Sparsity basically means "most of whatever it is is useless". In machine learning, we can say a categorical feature is sparse if it has like 1000 levels, and like 3 of them have any relation with the target. 

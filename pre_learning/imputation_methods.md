@@ -37,3 +37,11 @@ Naturally, KNN is very good for imputation.
 
 ## bPCA: Bayesiean Principle Component Analysis.
 This is very hard and mathsey. Basically it seems to perform a little worse than FKN, but is much less expensive computationally. 
+
+## Multiple Imputation
+
+Basically you aren't sure *what* the missing values are, so you impute your dataset in a number of plausible ways, resulting in a number of alternative datasets. You then train models on all the datasets and average the results of the models to get a good prediction. 
+
+Ideally the different imputation methods should all be somewhat random and draw from (more or less) the same statistical distribution.
+
+But like, fuck that. It's going to take forever.
