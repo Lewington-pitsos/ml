@@ -1,14 +1,10 @@
 # Confirmed
 
-- K-fold cross validation
+- Never just run a single valdiaiton round, 5-fold cross validation at least. 
 
 - drop the FUCKing id column (~1%)
 
 - tune parameters on the same random seed or else your results might be partly due to rng (boo)
-
-- *fine tune* even more once you get close to desired parameters (~0.5%)
-
-- a dataset containing many so/so features will perform better than a small subset of that dataset containing only the most correlated features. Hence high-quantity feature engineering is maybe good.
 
 - target transformation, normalize the target variable, (~0.4%)
 
@@ -16,9 +12,11 @@
 
 - when imputing data, calculate things like mean, mode, etc from the **combined** train/test dataset. These values will be more accurate period.
 
-- impute data using k-nearest neighbor (~0.01%) 
+- simple feature aggregates for all occations:
+    - the frequency of an important feature
+    - the "concat" of two important-looking features (i.e. convert to strings, then string concat)
 
-- removing *some* useless columns can improve performance
+- if 3 or 4 features are very high xgboost importance try looking at their relations manually. Maybe you can find why xgboost likes them.
 
 - kill outliers
 
