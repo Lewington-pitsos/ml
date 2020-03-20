@@ -7,3 +7,5 @@ Common practice currently is to estimate the energy usage of a building using "e
 ## Statistical methods
 
 These are purely empirical, they make future usage estimations based on past observations (for a given building or similar buildings).
+
+      
